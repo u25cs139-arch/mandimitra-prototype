@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MandiMitra — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1F2A1F;
+    --paper:#F6F8F4;
+    --paper-raised:#FFFFFF;
+    --green:#2C5F2D;
+    --green-deep:#1B3A1D;
+    --gold:#E8A33D;
+    --gold-deep:#B5423A;
+    --clay:#B5423A;
+    --sprout:#5C8A3A;
+    --line:#DDE3D6;
+    --line-soft:#EFF3EA;
+    --shadow: 0 1px 0 rgba(28,27,20,.05);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Calibri','Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  body.lang-hi{ font-family:'Noto Sans Devanagari','Calibri',sans-serif; }
+  h1,h2,h3,.display{
+    font-family:'Calibri','Noto Sans Devanagari',sans-serif;
+    font-weight:700;
+    margin:0;
+  }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px;
+    background:var(--green);
+    color:#F6F2E4;
+    border-bottom:4px solid var(--gold);
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand-mark{
+    width:38px; height:38px; border-radius:9px;
+    background:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Calibri',sans-serif; font-weight:800; color:var(--green-deep);
+    font-size:19px;
+    transform:rotate(-4deg);
+  }
+  .brand-text .name{ font-family:'Calibri',sans-serif; font-size:20px; font-weight:700; letter-spacing:.2px; }
+  .brand-text .tag{ font-size:12.5px; opacity:.78; margin-top:1px; }
+
+  .topbar-controls{ display:flex; align-items:center; gap:10px; }
+  .lang-toggle{
+    display:flex; background:rgba(255,255,255,.12); border-radius:999px; padding:3px;
+    border:1px solid rgba(255,255,255,.2);
+  }
+  .lang-toggle button{
+    border:none; background:transparent; color:#F6F2E4; opacity:.7;
+    font-size:13px; font-weight:600; padding:6px 14px; border-radius:999px; cursor:pointer;
+    font-family:inherit;
+  }
+  .lang-toggle button.active{ background:var(--gold); color:var(--green-deep); opacity:1; }
+
+  .view-toggle{ display:flex; gap:8px; }
+  .view-toggle button{
+    border:1.5px solid rgba(255,255,255,.3); background:transparent; color:#F6F2E4;
+    padding:8px 16px; border-radius:8px; font-weight:600; font-size:13.5px; cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  body.lang-hi .view-toggle button{ font-family:'Noto Sans Devanagari',sans-serif; }
+  .view-toggle button.active{ background:#F6F2E4; color:var(--green-deep); border-color:#F6F2E4; }
+
+  .stage{ padding:40px 32px 80px; max-width:1280px; margin:0 auto; }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  /* ==================== FARMER VIEW ==================== */
+  .farmer-wrap{
+    display:flex; gap:48px; align-items:flex-start; justify-content:center; flex-wrap:wrap;
+  }
+  .intro-copy{ max-width:320px; padding-top:24px; }
+  .intro-copy .eyebrow{ color:var(--gold-deep); font-weight:700; font-size:13px; }
+  .intro-copy h2{ font-size:26px; line-height:1.2; margin-top:8px; color:var(--green-deep); }
+  .intro-copy p{ font-size:14.5px; line-height:1.6; color:#4A4735; margin-top:12px; }
+  .step-dots{ display:flex; gap:8px; margin-top:26px; }
+  .step-dots span{ width:8px; height:8px; border-radius:50%; background:var(--line); }
+  .step-dots span.on{ background:var(--sprout); width:22px; border-radius:5px; transition:.3s; }
+
+  .phone{
+    width:340px; height:660px; background:var(--green-deep); border-radius:38px;
+    padding:12px; box-shadow:0 20px 50px rgba(21,44,29,.28), 0 2px 0 rgba(0,0,0,.1);
+    position:relative;
+  }
+  .phone-notch{
+    position:absolute; top:12px; left:50%; transform:translateX(-50%);
+    width:110px; height:20px; background:var(--green-deep); border-radius:0 0 14px 14px; z-index:5;
+  }
+  .screen{
+    background:var(--paper-raised); width:100%; height:100%; border-radius:28px;
+    overflow:hidden; position:relative; display:flex; flex-direction:column;
+  }
+  .screen-status{
+    height:26px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; font-size:11px; color:#8b876f; flex-shrink:0;
+  }
+  .screen-body{ flex:1; padding:6px 22px 18px; overflow-y:auto; display:flex; flex-direction:column; }
+
+  .app-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .app-header .logo{ font-family:'Calibri',sans-serif; font-weight:700; color:var(--green-deep); font-size:16px; }
+  .app-header .badge{ background:var(--line-soft); color:#6b6748; font-size:10.5px; padding:3px 9px; border-radius:999px; font-weight:600; }
+
+  .field-label{ font-size:11.5px; font-weight:700; color:#75714f; margin:12px 0 6px; text-transform:none; }
+  .field{
+    border:1.5px solid var(--line); border-radius:10px; padding:11px 13px; font-size:13.5px;
+    background:#FCFAF2; color:var(--ink); width:100%; font-family:inherit;
+  }
+  select.field{ appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2375714f'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; }
+
+  .btn{
+    border:none; border-radius:10px; padding:12px 16px; font-weight:700; font-size:14px;
+    cursor:pointer; font-family:inherit; width:100%; transition:transform .12s ease;
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:var(--gold); color:var(--green-deep); }
+  .btn-ghost{ background:transparent; color:#6b6748; border:1.5px solid var(--line); margin-top:8px; }
+  .btn-outline-inverse{ background:transparent; color:#F6F2E4; border:1.5px solid rgba(246,242,228,.4); }
+
+  .spacer-grow{ flex:1; }
+
+  /* confirmation screen */
+  .confirm-hero{
+    background:var(--green); border-radius:16px; padding:20px; color:#F6F2E4; text-align:center; margin-top:6px;
+  }
+  .confirm-hero .check{
+    width:44px; height:44px; border-radius:50%; background:var(--gold); margin:0 auto 10px;
+    display:flex; align-items:center; justify-content:center; color:var(--green-deep); font-size:22px; font-weight:800;
+    animation: pop .5s cubic-bezier(.2,1.4,.4,1);
+  }
+  @keyframes pop{ 0%{transform:scale(0);} 70%{transform:scale(1.15);} 100%{transform:scale(1);} }
+  .confirm-hero .token{ font-family:'Calibri',sans-serif; font-size:30px; font-weight:800; letter-spacing:1px; margin-top:4px; }
+  .confirm-hero .sub{ font-size:11.5px; opacity:.8; margin-top:2px; }
+  .confirm-detail-row{ display:flex; justify-content:space-between; font-size:12.5px; padding:9px 0; border-bottom:1px solid var(--line-soft); }
+  .confirm-detail-row span:first-child{ color:#8b876f; }
+  .confirm-detail-row span:last-child{ font-weight:600; }
+  .qr-box{ width:96px; height:96px; margin:14px auto 4px; background:#fff; border-radius:10px; border:1.5px solid var(--line); padding:6px; }
+  .qr-box svg{ width:100%; height:100%; }
+
+  /* queue screen */
+  .queue-position-ring{
+    width:150px; height:150px; margin:6px auto 4px; position:relative; display:flex; align-items:center; justify-content:center;
+  }
+  .queue-position-ring svg{ position:absolute; inset:0; transform:rotate(-90deg); }
+  .queue-position-ring .num{ font-family:'Calibri',sans-serif; font-size:44px; font-weight:800; color:var(--green-deep); }
+  .queue-position-ring .lbl{ position:absolute; bottom:16px; font-size:10px; color:#8b876f; font-weight:600; }
+  .queue-meta{ display:flex; justify-content:space-around; text-align:center; margin-top:10px; }
+  .queue-meta div span{ display:block; }
+  .queue-meta .v{ font-family:'Calibri',sans-serif; font-size:17px; font-weight:700; color:var(--green-deep); }
+  .queue-meta .l{ font-size:10.5px; color:#8b876f; margin-top:2px; }
+  .sms-toast{
+    margin-top:14px; background:#FDF3E3; border:1.5px solid var(--gold); border-radius:10px; padding:11px 13px;
+    display:flex; gap:9px; align-items:flex-start; opacity:0; transform:translateY(6px); transition:.35s;
+  }
+  .sms-toast.show{ opacity:1; transform:translateY(0); }
+  .sms-toast .ic{ font-size:15px; }
+  .sms-toast p{ margin:0; font-size:11.5px; line-height:1.45; color:#5b4a1f; }
+  .sms-toast strong{ display:block; font-size:11px; color:var(--gold-deep); margin-bottom:1px; }
+
+  /* payment tracker */
+  .track-item{ display:flex; gap:11px; padding:9px 0; }
+  .track-line{ display:flex; flex-direction:column; align-items:center; width:18px; flex-shrink:0; }
+  .track-dot{ width:16px; height:16px; border-radius:50%; background:var(--line); border:2px solid var(--line); flex-shrink:0; transition:.3s; }
+  .track-dot.done{ background:var(--sprout); border-color:var(--sprout); }
+  .track-dot.current{ background:var(--gold); border-color:var(--gold-deep); box-shadow:0 0 0 4px rgba(217,166,46,.25); }
+  .track-bar{ width:2px; flex:1; background:var(--line); margin:2px 0; }
+  .track-bar.done{ background:var(--sprout); }
+  .track-body{ padding-bottom:6px; }
+  .track-title{ font-size:13px; font-weight:700; color:#c9c3a4; }
+  .track-title.active{ color:var(--green-deep); }
+  .track-sub{ font-size:11px; color:#a39d7c; margin-top:1px; }
+  .track-amt{ background:var(--green); color:#F6F2E4; border-radius:12px; padding:14px 16px; margin-top:4px; text-align:center; }
+  .track-amt .n{ font-family:'Calibri',sans-serif; font-size:24px; font-weight:800; color:var(--gold); }
+  .track-amt .l{ font-size:11px; opacity:.8; margin-top:2px; }
+
+  .bottom-nav{ display:flex; justify-content:space-around; padding:10px 0 2px; border-top:1px solid var(--line-soft); }
+  .bottom-nav .item{ text-align:center; font-size:9.5px; color:#b3ae90; font-weight:600; }
+  .bottom-nav .item.on{ color:var(--green); }
+  .bottom-nav .dot{ width:5px; height:5px; border-radius:50%; background:currentColor; margin:0 auto 4px; }
+
+  /* ==================== ADMIN VIEW ==================== */
+  .admin-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  .admin-head h2{ font-size:23px; color:var(--green-deep); }
+  .admin-head .loc{ font-size:13px; color:#7a755a; font-weight:600; }
+  .kpi-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px; }
+  .kpi{
+    background:var(--paper-raised); border:1px solid var(--line); border-radius:14px; padding:18px 20px;
+    position:relative; overflow:hidden;
+  }
+  .kpi::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--bar,var(--gold)); }
+  .kpi .lbl{ font-size:12px; color:#847f61; font-weight:600; }
+  .kpi .val{ font-family:'Calibri',sans-serif; font-size:30px; font-weight:800; color:var(--green-deep); margin-top:4px; }
+  .kpi.k1{ --bar:var(--gold); } .kpi.k2{ --bar:var(--sprout);} .kpi.k3{ --bar:var(--clay);} .kpi.k4{ --bar:#5b7fb0; }
+
+  .admin-grid{ display:grid; grid-template-columns:1.1fr 1.6fr; gap:20px; align-items:start; }
+  .panel{ background:var(--paper-raised); border:1px solid var(--line); border-radius:16px; padding:22px; }
+  .panel h3{ font-size:15px; color:var(--green-deep); margin-bottom:16px; }
+
+  .chart{ display:flex; align-items:flex-end; gap:10px; height:180px; padding-top:10px; }
+  .chart .col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .chart .bar{ width:100%; max-width:26px; background:linear-gradient(180deg,var(--gold),var(--gold-deep)); border-radius:5px 5px 3px 3px; transition:height .6s cubic-bezier(.2,.9,.3,1); }
+  .chart .hr{ font-size:10px; color:#8b876f; margin-top:7px; font-weight:600; }
+  .chart .col.peak .bar{ background:linear-gradient(180deg,var(--clay),#8a3d29); }
+
+  table.queue-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.queue-table th{ text-align:left; font-size:11px; text-transform:none; color:#847f61; font-weight:700; padding:0 10px 10px; border-bottom:1.5px solid var(--line); }
+  table.queue-table td{ padding:11px 10px; border-bottom:1px solid var(--line-soft); vertical-align:middle; }
+  .tok{ font-family:'Calibri',sans-serif; font-weight:700; color:var(--green-deep); }
+  .status-pill{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px; display:inline-block; }
+  .status-pill.waiting{ background:#F1EEDD; color:#7a745a; }
+  .status-pill.checkedin{ background:#E4EEE0; color:var(--sprout); }
+  .status-pill.weighing{ background:#FDF0DC; color:var(--gold-deep); }
+  .status-pill.paid{ background:#DDEAE1; color:#1f6b3d; }
+  .row-btn{ border:1.5px solid var(--line); background:#fff; color:var(--green-deep); font-weight:700; font-size:11.5px; padding:6px 11px; border-radius:8px; cursor:pointer; font-family:inherit; }
+  .row-btn:hover{ background:var(--paper); }
+  .call-next-btn{ background:var(--green); color:#F6F2E4; border:none; padding:11px 18px; border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; margin-bottom:16px; }
+
+  footer{ text-align:center; padding:26px; font-size:12px; color:#8b8567; }
+
+  @media (max-width:880px){
+    .admin-grid{ grid-template-columns:1fr; }
+    .kpi-row{ grid-template-columns:repeat(2,1fr); }
+    .topbar{ flex-direction:column; gap:12px; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div class="brand-text">
+      <div class="name">MandiMitra</div>
+      <div class="tag" data-en="Smart Queue &amp; Procurement Platform" data-hi="स्मार्ट कतार और खरीद मंच">Smart Queue &amp; Procurement Platform</div>
+    </div>
+  </div>
+  <div class="topbar-controls">
+    <div class="view-toggle">
+      <button id="btnFarmerView" class="active" data-en="Farmer App" data-hi="किसान ऐप">Farmer App</button>
+      <button id="btnAdminView" data-en="Admin Dashboard" data-hi="एडमिन डैशबोर्ड">Admin Dashboard</button>
+    </div>
+    <div class="lang-toggle">
+      <button id="btnEN" class="active">EN</button>
+      <button id="btnHI">हिं</button>
+    </div>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- ============ FARMER VIEW ============ -->
+  <div class="view active" id="viewFarmer">
+    <div class="farmer-wrap">
+
+      <div class="intro-copy">
+        <div class="eyebrow" data-en="Conceptual UI Prototype" data-hi="संकल्पनात्मक यूआई प्रोटोटाइप">Conceptual UI Prototype</div>
+        <h2 data-en="One trip, a known slot, a visible queue." data-hi="एक ट्रिप, तय स्लॉट, दिखती हुई कतार।">One trip, a known slot, a visible queue.</h2>
+        <p data-en="Walk through the farmer journey below — book a slot, track your live position, and follow your payment end to end. Buttons inside the phone are fully clickable." data-hi="नीचे किसान की पूरी यात्रा देखें — स्लॉट बुक करें, अपनी लाइव स्थिति देखें, और भुगतान को अंत तक ट्रैक करें। फ़ोन के अंदर सभी बटन काम करते हैं।">Walk through the farmer journey below — book a slot, track your live position, and follow your payment end to end. Buttons inside the phone are fully clickable.</p>
+        <div class="step-dots" id="stepDots">
+          <span class="on"></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="screen">
+          <div class="screen-status"><span>9:41</span><span data-en="MandiMitra" data-hi="मंडीमित्र">MandiMitra</span></div>
+
+          <!-- SCREEN 0: BOOK SLOT -->
+          <div class="screen-body" id="screen0">
+            <div class="app-header">
+              <div class="logo" data-en="Book Your Slot" data-hi="स्लॉट बुक करें">Book Your Slot</div>
+              <div class="badge" data-en="e-NAM linked" data-hi="e-NAM से जुड़ा">e-NAM linked</div>
+            </div>
+
+            <div class="field-label" data-en="Procurement Centre" data-hi="खरीद केंद्र">Procurement Centre</div>
+            <select class="field">
+              <option data-en="Sirsa Mandi, Haryana" data-hi="सिरसा मंडी, हरियाणा">Sirsa Mandi, Haryana</option>
+            </select>
+
+            <div class="field-label" data-en="Crop" data-hi="फसल">Crop</div>
+            <select class="field">
+              <option data-en="Wheat" data-hi="गेहूं">Wheat</option>
+            </select>
+
+            <div class="field-label" data-en="Preferred Date" data-hi="पसंदीदा तारीख">Preferred Date</div>
+            <input class="field" type="text" value="12 Sep 2026" readonly>
+
+            <div class="field-label" data-en="Quantity (quintal, est.)" data-hi="मात्रा (क्विंटल, अनुमानित)">Quantity (quintal, est.)</div>
+            <input class="field" type="text" value="28">
+
+            <div class="spacer-grow"></div>
+            <button class="btn btn-primary" onclick="goToScreen(1)" data-en="Confirm Booking" data-hi="बुकिंग की पुष्टि करें">Confirm Booking</button>
+          </div>
+
+          <!-- SCREEN 1: CONFIRMATION -->
+          <div class="screen-body" id="screen1" style="display:none;">
+            <div class="app-header">
+              <button class="row-btn" style="border:none;padding:2px 0;" onclick="goToScreen(0)">←</button>
+              <div class="badge" data-en="Token Issued" data-hi="टोकन जारी">Token Issued</div>
+            </div>
+            <div class="confirm-hero">
+              <div class="check">✓</div>
+              <div class="sub" data-en="BOOKING CONFIRMED" data-hi="बुकिंग की पुष्टि हुई">BOOKING CONFIRMED</div>
+              <div class="token">SIR-0142</div>
+            </div>
+            <div class="confirm-detail-row"><span data-en="Centre" data-hi="केंद्र">Centre</span><span>Sirsa Mandi</span></div>
+            <div class="confirm-detail-row"><span data-en="Crop" data-hi="फसल">Crop</span><span data-en="Wheat" data-hi="गेहूं">Wheat</span></div>
+            <div class="confirm-detail-row"><span data-en="Slot" data-hi="स्लॉट">Slot</span><span>12 Sep, 9:30–10:00 AM</span></div>
+            <div class="qr-box" id="qrBox"></div>
+            <div style="text-align:center;font-size:10.5px;color:#8b876f;" data-en="Show this QR at centre gate" data-hi="केंद्र के गेट पर यह QR दिखाएं">Show this QR at centre gate</div>
+            <div class="spacer-grow"></div>
+            <button class="btn btn-primary" onclick="goToScreen(2)" data-en="View Live Queue" data-hi="लाइव कतार देखें">View Live Queue</button>
+          </div>
+
+          <!-- SCREEN 2: LIVE QUEUE -->
+          <div class="screen-body" id="screen2" style="display:none;">
+            <div class="app-header">
+              <button class="row-btn" style="border:none;padding:2px 0;" onclick="goToScreen(1)">←</button>
+              <div class="badge" data-en="Live" data-hi="लाइव">Live</div>
+            </div>
+            <div style="text-align:center;font-size:11.5px;color:#8b876f;font-weight:600;margin-top:2px;" data-en="YOUR QUEUE POSITION" data-hi="आपकी कतार स्थिति">YOUR QUEUE POSITION</div>
+            <div class="queue-position-ring">
+              <svg viewBox="0 0 150 150" width="150" height="150">
+                <circle cx="75" cy="75" r="66" stroke="#EAE3CC" stroke-width="10" fill="none"/>
+                <circle id="ringProgress" cx="75" cy="75" r="66" stroke="#D9A62E" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="414.7" stroke-dashoffset="118" />
+              </svg>
+              <div class="num" id="queueNum">7</div>
+            </div>
+            <div class="queue-meta">
+              <div><span class="v" id="queueWait">25</span><span class="l" data-en="min wait" data-hi="मिनट प्रतीक्षा">min wait</span></div>
+              <div><span class="v">3</span><span class="l" data-en="counters open" data-hi="काउंटर खुले">counters open</span></div>
+            </div>
+            <div class="sms-toast" id="smsToast">
+              <div class="ic">📩</div>
+              <p><strong data-en="SMS Alert" data-hi="एसएमएस अलर्ट">SMS Alert</strong><span data-en="Your turn is near. Please reach counter 2 within 10 minutes." data-hi="आपकी बारी नज़दीक है। कृपया 10 मिनट में काउंटर 2 पर पहुंचें।">Your turn is near. Please reach counter 2 within 10 minutes.</span></p>
+            </div>
+            <div class="spacer-grow"></div>
+            <button class="btn btn-primary" onclick="advanceQueue()" data-en="Simulate: Move Queue Forward" data-hi="सिमुलेट करें: कतार आगे बढ़ाएं">Simulate: Move Queue Forward</button>
+            <button class="btn btn-ghost" onclick="goToScreen(3)" data-en="Go to Payment Status" data-hi="भुगतान स्थिति देखें">Go to Payment Status</button>
+          </div>
+
+          <!-- SCREEN 3: PAYMENT TRACKER -->
+          <div class="screen-body" id="screen3" style="display:none;">
+            <div class="app-header">
+              <button class="row-btn" style="border:none;padding:2px 0;" onclick="goToScreen(2)">←</button>
+              <div class="badge" data-en="Token SIR-0142" data-hi="टोकन SIR-0142">Token SIR-0142</div>
+            </div>
+            <div style="font-size:11.5px;color:#8b876f;font-weight:600;margin-bottom:6px;" data-en="PAYMENT STATUS" data-hi="भुगतान स्थिति">PAYMENT STATUS</div>
+
+            <div id="trackerList"></div>
+
+            <div class="track-amt">
+              <div class="n">₹ 61,600</div>
+              <div class="l" data-en="Expected amount • 28 qtl @ ₹2,200 MSP" data-hi="अनुमानित राशि • 28 क्विं. @ ₹2,200 एमएसपी">Expected amount • 28 qtl @ ₹2,200 MSP</div>
+            </div>
+            <div class="spacer-grow"></div>
+            <button class="btn btn-primary" onclick="advancePayment()" data-en="Simulate: Advance Status" data-hi="सिमुलेट करें: स्थिति आगे बढ़ाएं">Simulate: Advance Status</button>
+          </div>
+
+          <div class="bottom-nav">
+            <div class="item on"><div class="dot"></div><span data-en="Book" data-hi="बुक करें">Book</span></div>
+            <div class="item"><div class="dot"></div><span data-en="Queue" data-hi="कतार">Queue</span></div>
+            <div class="item"><div class="dot"></div><span data-en="Payment" data-hi="भुगतान">Payment</span></div>
+            <div class="item"><div class="dot"></div><span data-en="Help" data-hi="सहायता">Help</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ ADMIN VIEW ============ -->
+  <div class="view" id="viewAdmin">
+    <div class="admin-head">
+      <h2 data-en="Centre Admin Dashboard" data-hi="केंद्र एडमिन डैशबोर्ड">Centre Admin Dashboard</h2>
+      <div class="loc" data-en="Sirsa Mandi · 5 Sep 2026" data-hi="सिरसा मंडी · 5 सितंबर 2026">Sirsa Mandi · 5 Sep 2026</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi k1"><div class="lbl" data-en="In Queue" data-hi="कतार में">In Queue</div><div class="val" id="kpiQueue">42</div></div>
+      <div class="kpi k2"><div class="lbl" data-en="Checked-In" data-hi="चेक-इन हुए">Checked-In</div><div class="val" id="kpiCheckedIn">18</div></div>
+      <div class="kpi k3"><div class="lbl" data-en="Paid Today" data-hi="आज भुगतान">Paid Today</div><div class="val">₹3.2L</div></div>
+      <div class="kpi k4"><div class="lbl" data-en="Slots Open" data-hi="खुले स्लॉट">Slots Open</div><div class="val">6</div></div>
+    </div>
+
+    <div class="admin-grid">
+      <div class="panel">
+        <h3 data-en="Queue Load by Hour" data-hi="घंटे के अनुसार कतार भार">Queue Load by Hour</h3>
+        <div class="chart" id="chart"></div>
+      </div>
+
+      <div class="panel">
+        <h3 data-en="Live Queue — Sirsa Mandi" data-hi="लाइव कतार — सिरसा मंडी">Live Queue — Sirsa Mandi</h3>
+        <button class="call-next-btn" onclick="callNext()" data-en="Call Next Farmer →" data-hi="अगला किसान बुलाएं →">Call Next Farmer →</button>
+        <table class="queue-table">
+          <thead>
+            <tr>
+              <th data-en="Token" data-hi="टोकन">Token</th>
+              <th data-en="Farmer" data-hi="किसान">Farmer</th>
+              <th data-en="Crop" data-hi="फसल">Crop</th>
+              <th data-en="Slot" data-hi="स्लॉट">Slot</th>
+              <th data-en="Status" data-hi="स्थिति">Status</th>
+              <th data-en="Action" data-hi="कार्रवाई">Action</th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer data-en="Conceptual prototype — Smart India Hackathon 2026 · Problem Statement 26032" data-hi="संकल्पनात्मक प्रोटोटाइप — स्मार्ट इंडिया हैकाथॉन 2026 · समस्या कथन 26032">Conceptual prototype — Smart India Hackathon 2026 · Problem Statement 26032</footer>
+
+<script>
+/* ---------------- language toggle ---------------- */
+let lang = 'en';
+function setLang(l){
+  lang = l;
+  document.body.classList.toggle('lang-hi', l==='hi');
+  document.getElementById('btnEN').classList.toggle('active', l==='en');
+  document.getElementById('btnHI').classList.toggle('active', l==='hi');
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    el.textContent = l==='hi' ? el.getAttribute('data-hi') : el.getAttribute('data-en');
+  });
+}
+document.getElementById('btnEN').onclick=()=>setLang('en');
+document.getElementById('btnHI').onclick=()=>setLang('hi');
+
+/* ---------------- view toggle ---------------- */
+document.getElementById('btnFarmerView').onclick=()=>{
+  document.getElementById('btnFarmerView').classList.add('active');
+  document.getElementById('btnAdminView').classList.remove('active');
+  document.getElementById('viewFarmer').classList.add('active');
+  document.getElementById('viewAdmin').classList.remove('active');
+};
+document.getElementById('btnAdminView').onclick=()=>{
+  document.getElementById('btnAdminView').classList.add('active');
+  document.getElementById('btnFarmerView').classList.remove('active');
+  document.getElementById('viewAdmin').classList.add('active');
+  document.getElementById('viewFarmer').classList.remove('active');
+};
+
+/* ---------------- phone screen nav ---------------- */
+function goToScreen(n){
+  for(let i=0;i<4;i++){ document.getElementById('screen'+i).style.display = (i===n)?'flex':'none'; }
+  document.querySelectorAll('#stepDots span').forEach((d,i)=>d.classList.toggle('on', i===n));
+}
+
+/* ---------------- fake QR ---------------- */
+(function drawQR(){
+  const size=9, cell=100/size;
+  let svg = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">`;
+  let seed=42;
+  function rnd(){ seed = (seed*9301+49297)%233280; return seed/233280; }
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const corner = (x<3&&y<3)||(x>size-4&&y<3)||(x<3&&y>size-4);
+      if(corner){ if(x%2===0||y%2===0) svg+=`<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="#1C1B14"/>`; }
+      else if(rnd()>0.55){ svg+=`<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="#1C1B14"/>`; }
+    }
+  }
+  svg+=`</svg>`;
+  document.getElementById('qrBox').innerHTML = svg;
+})();
+
+/* ---------------- queue simulation ---------------- */
+let queuePos = 7;
+const CIRC = 414.7;
+function renderQueue(){
+  document.getElementById('queueNum').textContent = queuePos;
+  document.getElementById('queueWait').textContent = queuePos*3+4;
+  const frac = Math.max(0, (queuePos-1)/10);
+  document.getElementById('ringProgress').setAttribute('stroke-dashoffset', (CIRC*frac).toFixed(1));
+  const toast = document.getElementById('smsToast');
+  if(queuePos<=2){ toast.classList.add('show'); } else { toast.classList.remove('show'); }
+}
+function advanceQueue(){
+  if(queuePos>0){ queuePos--; renderQueue(); }
+}
+renderQueue();
+
+/* ---------------- payment tracker ---------------- */
+const steps = [
+  {en:'Arrived at Centre', hi:'केंद्र पर पहुंचे', sen:'Gate check-in via QR', shi:'QR से गेट चेक-इन'},
+  {en:'Weighed', hi:'तौल हुई', sen:'Net weight recorded', shi:'नेट वज़न दर्ज हुआ'},
+  {en:'Quality Checked', hi:'गुणवत्ता जांची गई', sen:'FAQ grading complete', shi:'FAQ ग्रेडिंग पूर्ण'},
+  {en:'Payment Approved', hi:'भुगतान स्वीकृत', sen:'DBT initiated', shi:'DBT शुरू हुआ'},
+  {en:'Credited', hi:'जमा हुआ', sen:'Amount in bank account', shi:'राशि बैंक खाते में'}
+];
+let payStep = 0;
+function renderTracker(){
+  const list = document.getElementById('trackerList');
+  list.innerHTML = steps.map((s,i)=>{
+    const done = i < payStep;
+    const current = i === payStep;
+    return `<div class="track-item">
+      <div class="track-line">
+        <div class="track-dot ${done?'done':''} ${current?'current':''}"></div>
+        ${i<steps.length-1?`<div class="track-bar ${done?'done':''}"></div>`:''}
+      </div>
+      <div class="track-body">
+        <div class="track-title ${done||current?'active':''}">${lang==='hi'?s.hi:s.en}</div>
+        <div class="track-sub">${lang==='hi'?s.shi:s.sen}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function advancePayment(){
+  if(payStep < steps.length-1){ payStep++; renderTracker(); }
+}
+renderTracker();
+
+/* re-render tracker text on language change too */
+const origSetLang = setLang;
+setLang = function(l){ origSetLang(l); renderTracker(); };
+
+/* ---------------- admin: chart ---------------- */
+const hours = [
+  {h:'9AM', v:30},{h:'10AM', v:55},{h:'11AM', v:80},{h:'12PM', v:95},
+  {h:'1PM', v:70},{h:'2PM', v:60},{h:'3PM', v:75},{h:'4PM', v:50},{h:'5PM', v:25}
+];
+const chartEl = document.getElementById('chart');
+chartEl.innerHTML = hours.map(d=>`
+  <div class="col ${d.v>=90?'peak':''}">
+    <div class="bar" style="height:${d.v}%"></div>
+    <div class="hr">${d.h}</div>
+  </div>`).join('');
+
+/* ---------------- admin: queue table ---------------- */
+let queueRows = [
+  {tok:'SIR-0138', name:'Ram Kumar', crop:{en:'Wheat',hi:'गेहूं'}, slot:'9:00 AM', status:'checkedin'},
+  {tok:'SIR-0139', name:'Suman Devi', crop:{en:'Mustard',hi:'सरसों'}, slot:'9:10 AM', status:'weighing'},
+  {tok:'SIR-0140', name:'Baljeet Singh', crop:{en:'Wheat',hi:'गेहूं'}, slot:'9:15 AM', status:'waiting'},
+  {tok:'SIR-0141', name:'Neelam Rani', crop:{en:'Wheat',hi:'गेहूं'}, slot:'9:20 AM', status:'waiting'},
+  {tok:'SIR-0142', name:'Farmer (You)', crop:{en:'Wheat',hi:'गेहूं'}, slot:'9:30 AM', status:'waiting'},
+  {tok:'SIR-0143', name:'Iqbal Khan', crop:{en:'Mustard',hi:'सरसों'}, slot:'9:35 AM', status:'paid'},
+];
+const statusLabel = {
+  waiting:{en:'Waiting',hi:'प्रतीक्षा'},
+  checkedin:{en:'Checked-in',hi:'चेक-इन'},
+  weighing:{en:'Weighing',hi:'तौल जारी'},
+  paid:{en:'Paid',hi:'भुगतान हो गया'}
+};
+function renderQueueTable(){
+  const body = document.getElementById('queueTableBody');
+  body.innerHTML = queueRows.map((r,i)=>{
+    let actionBtn = '';
+    if(r.status==='waiting') actionBtn = `<button class="row-btn" onclick="advanceRow(${i})">${lang==='hi'?'चेक-इन करें':'Check-in'}</button>`;
+    else if(r.status==='checkedin') actionBtn = `<button class="row-btn" onclick="advanceRow(${i})">${lang==='hi'?'तौल शुरू करें':'Start Weighing'}</button>`;
+    else if(r.status==='weighing') actionBtn = `<button class="row-btn" onclick="advanceRow(${i})">${lang==='hi'?'भुगतान चिह्नित करें':'Mark Paid'}</button>`;
+    else actionBtn = `<span style="color:#b3ae90;font-size:12px;">—</span>`;
+    return `<tr>
+      <td class="tok">${r.tok}</td>
+      <td>${r.name}</td>
+      <td>${lang==='hi'?r.crop.hi:r.crop.en}</td>
+      <td>${r.slot}</td>
+      <td><span class="status-pill ${r.status}">${lang==='hi'?statusLabel[r.status].hi:statusLabel[r.status].en}</span></td>
+      <td>${actionBtn}</td>
+    </tr>`;
+  }).join('');
+}
+function advanceRow(i){
+  const order = ['waiting','checkedin','weighing','paid'];
+  const idx = order.indexOf(queueRows[i].status);
+  if(idx < order.length-1){ queueRows[i].status = order[idx+1]; }
+  updateKPIs();
+  renderQueueTable();
+}
+function callNext(){
+  const next = queueRows.find(r=>r.status==='waiting');
+  if(next){ next.status='checkedin'; updateKPIs(); renderQueueTable(); }
+}
+function updateKPIs(){
+  const waiting = queueRows.filter(r=>r.status==='waiting').length;
+  const checked = queueRows.filter(r=>r.status!=='waiting').length;
+  document.getElementById('kpiQueue').textContent = 36 + waiting;
+  document.getElementById('kpiCheckedIn').textContent = 12 + checked;
+}
+renderQueueTable();
+updateKPIs();
+
+const origSetLang2 = setLang;
+setLang = function(l){ origSetLang2(l); renderQueueTable(); };
+</script>
+</body>
+</html>
